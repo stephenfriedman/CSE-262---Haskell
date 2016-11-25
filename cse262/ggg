@@ -1,0 +1,5 @@
+remDup l1 l2 = helper (l1++l2)
+helper list @(x:xs)
+       |null list = []
+       |null xs   = [x]
+       |otherwise =[x] ++ helper (filter (/=x)xs)

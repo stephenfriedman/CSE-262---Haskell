@@ -1,0 +1,7 @@
+
+
+
+helper x:xs 
+       |null x		=[]
+       |null xs		=[x]       
+       |otherwise	=  [x] ++ helper (filter (/=x)xs)

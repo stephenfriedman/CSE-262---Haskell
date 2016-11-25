@@ -1,0 +1,5 @@
+--Stephen A Friedman
+priceEval:: Num -> Num -> Num -> Num
+priceEval x y z
+	  |z>0 priceEval (x*(y-1)+x) y (z-1)
+	  |otherwise	 z

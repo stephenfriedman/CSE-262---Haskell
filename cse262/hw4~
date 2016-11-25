@@ -1,0 +1,3 @@
+--Stephen A Friedman
+priceEval:: Num -> Num -> Num -> Num
+priceEval x y z

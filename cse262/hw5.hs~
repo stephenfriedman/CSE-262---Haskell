@@ -1,0 +1,125 @@
+--Stephen Friedman
+--Hw5
+
+data Type = Normal | Water | Fire | Grass | Electric 
+     deriving (Show,Enum, Eq)
+
+
+--data Pokemon = Pokemon String Int Int Type
+  --    deriving (Show)
+
+data Pokemon = Pokemon {name :: String
+     	       	       	, lifePoints :: Int
+			, hitPoints :: Int
+			, pokeType :: Type
+			} deriving (Show)
+
+--data Trainer = Trainer String [Pokemon]
+  --   deriving (Show)
+data Trainer = Trainer {tname :: String
+     	       	        , pokedex :: [Pokemon]
+			} deriving (Show)
+
+
+
+
+
+     
+
+--damage - 30
+isResistant :: Type -> Type -> Bool
+isResistant attacker defender
+	    |(defender == Water) && (attacker == Water)		=True
+	    |(defender == Water) && (attacker == Fire)		=True
+	    |(defender == Fire) && (attacker == Grass)		=True
+	    |(defender == Fire) && (attacker == Fire)   	=True
+	    |(defender == Grass) && (attacker == Grass)		=True 
+	    |(defender == Grass) && (attacker == Water)		=True
+	    |(defender == Grass) && (attacker == Electric)	=True
+	    |(defender == Electric) && (attacker == Electric)	=True
+	    |otherwise	 	     	      	 		=False
+
+--damage * 2
+isVulnerable :: Type -> Type -> Bool
+isVulnerable attacker defender
+	     |(defender == Water) && (attacker == Grass)	=True
+	     |(defender == Water) && (attacker == Electric)	=True
+	     |(defender == Fire) && (attacker == Water)		=True
+	     |(defender == Grass) && (attacker == Fire)		=True
+	     |otherwise	   	     	       	  		=False
+
+pikachu = Pokemon "Pikachu" 50 15 Electric
+squirtle = Pokemon "Squirtle" 50 20 Water
+wartortle = Pokemon "Wartortle" 80 40 Water
+snivy = Pokemon "Snivy" 60 20 Grass
+tepig = Pokemon "Tepig" 70 30 Fire
+jigglypuff = Pokemon "Jigglypuff" 60 20 Normal
+ 
+group = Trainer "PGroup" [pikachu, snivy, tepig]
+turtles = Trainer "Turtles" [squirtle, wartortle, wartortle]
+puff = Trainer "Puffs!" [jigglypuff, jigglypuff, jigglypuff]
+
+--combat :: Trainer -> Trainer -> Int -> String
+--combat t1 t2 turns
+  --     |turns == 0		="Combat too long!"
+  --   |((checkAllDead (pokedex t1) == True) && (checkAllDead (pokedex t2) == True))		="No Winner"
+  --     |((checkAllDead (pokedex t1) == True) && (checkAllDead (pokedex t2) == False))		= tname t2  
+  --     |((checkAllDead (pokedex t1) == False) && (checkAllDead (pokedex	   t2) == True))        = tname t1
+  --     |otherwise      =attack t1 t2 turns
+      
+--checkAllDead :: [Pokemon] -> Bool
+--checkAllDead []	= True
+--checkAllDead p 
+--	     |lifePoints (head p) > 0		=False
+--	     |lifePoints (head p) <= 0		=checkAllDead (tail p) 
+
+combat :: Trainer -> Trainer -> String
+combat t1 t2
+       |rip (pokedex t1) == [] && rip (pokedex t2) == []		="No Winner"
+       |(not (rip (pokedex t1) == [])) && (rip (pokedex t2) == [])	=name t1
+       |rip (pokedex t1) == [] && (not (rip (pokedex t2) == [])		=name t2
+       |otherwise    	       	       	    	     	    		=initiate t1 t2 -1    	    	     	    		
+
+initiate t1 t2 turns
+	 |turns <=0		=combat t1 t2
+	 |attack t1 t2 turns	=initiate t1 t2 (turns-1)
+
+
+attack t1 t2 turns 
+       |turns `mod` 2 == 0	=head (pokedex t2) {lifePoints =(lifePoints (head (pokedex t2))) - (hitDamage (head (pokedex t1)) (head (pokedex t2)))}   
+       |otherwise     	 	=head (pokedex t1) {lifePoints =(lifePoints (head (pokedex t1))) - (hitDamage (head (pokedex t2)) (head (pokedex t1)))}
+
+--     |turns `mod` 2 == 0	=hit ((head pokedex) t1) ((head pokedex) t2) t2
+    -- |otherwise     	 	=hit ((head pokedex) t2) ((head pokedex) t1) t1
+     	 
+vulnHit :: Pokemon -> Pokemon -> Int
+vulnHit p1 p2
+	|isVulnerable (pokeType p1) (pokeType p2)==True     =(hitPoints  p1)*2
+	|otherwise    		    	      		    =hitPoints p1
+
+resisHit :: Pokemon -> Pokemon -> Int
+resisHit p1 p2
+	 |isResistant (pokeType p1) (pokeType p2)==True		=(hitPoints p1) - 30
+	 |otherwise   		    	      			=hitPoints p1
+
+hitDamage :: Pokemon -> Pokemon -> Int
+hitDamage p1 p2
+	  |(resisHit p1 p2) <0		= vulnHit p1 p2
+	  |otherwise		=(vulnHit p1 p2) - (resisHit p1 p2)
+
+--hit :: Pokemon -> Pokemon -> Int
+--hit p1 p2 t
+  --  |p2 {lifePoints = ((lifePoints p2) - (hitDamage p1 p2))} <= 0	=rip t
+   -- |
+
+rip t
+    |lifePoints (head (pokedex t)) <= 0		=t {pokedex = (tail pokedex)}
+    |lifePoints (head (pokedex t)) > 0		=t {pokedex = pokedex}		
+    |pokedex t == []   	       	      		=t {pokedex = []}
+
+
+rip pd
+    |pd == []				=[]
+    |lifePoints (head pd) <=0		=rip (tail pd)
+    |lifePoints (head pd) > =0		=pd
+   
